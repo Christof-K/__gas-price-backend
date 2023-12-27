@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
 import { MongoClient } from "https://deno.land/x/mongo@v0.32.0/mod.ts";
 import { load } from "https://deno.land/std@0.210.0/dotenv/mod.ts";
-import { Brand, Fuel, Site } from './typedefs.ts';
+import { Brand, Fuel, Site, SitePrice } from './typedefs.ts';
 
 
 await load({ export: true })
@@ -54,7 +54,17 @@ export const resolvers = {
       }, {
         $setOnInsert: site,
       }, { upsert: true })
+    },
+    addSitePrice: (_: any, sitePrice: SitePrice) => {
+      const sitesPrices = db.collection('sites_prices');
+      sitesPrices.updateOne({
+        SiteId: sitePrice.SiteId,
+        FuelId: sitePrice.FuelId,
+        TransactionDateUtc: sitePrice.TransactionDateUtc
+      }, {
+        $setOnInsert: sitePrice,
+      }, { upsert: true })
     }
-    
+
   }
 }

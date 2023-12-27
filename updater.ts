@@ -1,7 +1,6 @@
 import { load } from "https://deno.land/std@0.210.0/dotenv/mod.ts";
-import { makeExecutableSchema } from 'https://deno.land/x/graphql_tools@0.0.2/mod.ts';
 import { resolvers } from './resolvers.ts';
-import { Brand, Fuel, typeDefs } from './typedefs.ts';
+import { Brand, Fuel, SitePrice } from './typedefs.ts';
 await load({ export: true })
 
 
@@ -10,7 +9,7 @@ enum ResourceTypes {
   brands = "brands",
   fuelTypes = "fuel_types",
   sites = "sites",
-
+  sitesPrices = "sites_prices"
 }
 
 
@@ -18,7 +17,7 @@ const resources = {
   [ResourceTypes.brands]: "Subscriber/GetCountryBrands?countryId=21",
   [ResourceTypes.fuelTypes]: "Subscriber/GetCountryFuelTypes?countryId=21",
   [ResourceTypes.sites]: "Subscriber/GetFullSiteDetails?countryId=21&geoRegionLevel=3&geoRegionId=1",
-  // "Price/GetSitesPrices?countryId=21&geoRegionLevel=3&geoRegionId=1"
+  [ResourceTypes.sitesPrices]: "Price/GetSitesPrices?countryId=21&geoRegionLevel=3&geoRegionId=1"
 }
 
 
@@ -70,6 +69,13 @@ Object.entries(resources).forEach(([resourceName, resource]) => {
             LastModified: _site.M,
             GooglePlaceId: _site.GPI
           })
+        })
+        break;
+      }
+      case ResourceTypes.sitesPrices: {
+        const sitesPrices = data.SitePrices as Array<SitePrice>
+        sitesPrices.forEach(item => {
+          resolvers.Mutation.addSitePrice(null, item);
         })
       }
     }

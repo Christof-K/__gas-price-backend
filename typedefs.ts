@@ -34,6 +34,14 @@ export interface Site {
   GooglePlaceId: string
 }
 
+export interface SitePrice {
+  SiteId: number,
+  FuelId: number,
+  CollectionMethod: string,
+  TransactionDateUtc: string,
+  Price: number
+}
+
 
 export const typeDefs = gql`
   type Query {
