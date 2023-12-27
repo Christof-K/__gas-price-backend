@@ -11,20 +11,59 @@ await client.connect(`mongodb://${databaseUrl}`);
 
 const db = client.database(Deno.env.get("DATABASE_NAME"));
 
+
+interface IDetailedPositionPrice extends SitePrice {
+  Fuel: Fuel
+}
+
+interface IDetailedPosition extends Site {
+  brand: Brand,
+  prices: IDetailedPositionPrice[]
+
+}
+
 export const resolvers = {
   Query: {
-    detailedPositions: (_: any, args: { lat: number, long: number }) => {
-      console.log('---getForPos', args.lat, args.long);
-      const positions = db.collection("positions");
-      positions.aggregate([{
-        $lookup: {
-          from: "brands",
-          local_field: "brand_id",
-          foreignField: "id",
-          as: "brands"
-        }
-      }])
-      return [{ name: "test" }, { name: "xxx" }]
+    detailedPositions: async (_: any, args: { lat: number, lng: number }): Promise<{ fuels: Fuel[], sites: IDetailedPosition[]}> => {
+      const sites = db.collection("sites");
+      const fuels = db.collection('fuels');
+
+      const result = await sites.aggregate([
+        {
+          $lookup: {
+            from: "brands",
+            localField: "BrandId",
+            foreignField: "BrandId",
+            as: "Brand"
+          },
+        },
+        {
+          $lookup: {
+            from: "sites_prices",
+            localField: "SiteId",
+            foreignField: "SiteId",
+            pipeline: [
+              {
+                $sort: { TransactionDateUtc: -1 } // Sort prices by date in descending order
+              },
+              {
+                $group: {
+                  _id: "$FuelId", // Group by FuelId
+                  LatestPrice: { $first: "$$ROOT" } // Get the first (latest) document for each FuelId
+                  // Add other fields you want to retain using $first
+                }
+              },
+            ],
+            as: "Prices"
+          },
+        },
+        { $limit: 10 }
+      ]).toArray() as IDetailedPosition[]
+
+      return {
+        fuels: await fuels.find().toArray() as Fuel[],
+        sites: result
+      };
     },
     // placeByApiId: (_:any, args: any) => {
 

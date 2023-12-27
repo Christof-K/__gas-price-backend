@@ -43,33 +43,36 @@ export interface SitePrice {
 }
 
 
-export const typeDefs = gql`
-  type Query {
-    detailedPositions(lat: Float, long: Float): [QueryResult]
-  }
 
-  type QueryResult {
-    name: String,
-    address: String,
-    lat: Float,
-    long: Float,
-    brand_name: String,
-    distance_km: Float,
-    distance_by_road_km: Float
-  }
+// export const typeDefs = gql`
+//   type Query {
+//     detailedPositions(lat: Float, long: Float): [QueryResult]
+//   }
 
-  type Brand {
-    BrandId: String,
-    Name: String
-  }
+//   type QueryResult {
+//     name: String,
+//     address: String,
+//     lat: Float,
+//     long: Float,
+//     brand_name: String,
+//     distance_km: Float,
+//     distance_by_road_km: Float
+//   }
 
-  type Mutation {
-    addBrand(brand_id: String): Brand,
-  }
-`;
+//   type Brand {
+//     BrandId: String,
+//     Name: String
+//   }
 
+//   interface IBrand {}
+//   interface IFuel {}
+//   interface ISite {}
+//   interface ISitePrice {}
 
-// addPlace(),
-//   addFuelType(),
-//   addPlaceFuelType(),
-//   addPlaceFuelPrice(),
+//   type Mutation {
+//     addBrand(brand: IBrand),
+//     addFuel(fuel: IFuel),
+//     addSite(site: ISite),
+//     addSitePrice(sitePrice: ISitePrice),
+//   }
+// `;
