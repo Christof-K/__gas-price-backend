@@ -13,8 +13,25 @@ export interface QueryResult {
 }
 
 export interface Brand {
-  BrandId: string,
+  BrandId: number,
   Name: string
+}
+
+export interface Fuel {
+  FuelId: number,
+  Name: string
+}
+
+export interface Site {
+  SiteId: number,
+  Address: string,
+  Name: string,
+  BrandId: number,
+  PostCode: string,
+  Lat: number,
+  Lng: number,
+  LastModified: string,
+  GooglePlaceId: string
 }
 
 

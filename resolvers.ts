@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
 import { MongoClient } from "https://deno.land/x/mongo@v0.32.0/mod.ts";
 import { load } from "https://deno.land/std@0.210.0/dotenv/mod.ts";
-import { Brand } from './typedefs.ts';
+import { Brand, Fuel, Site } from './typedefs.ts';
 
 
 await load({ export: true })
@@ -13,7 +13,7 @@ const db = client.database(Deno.env.get("DATABASE_NAME"));
 
 export const resolvers = {
   Query: {
-    detailedPositions: (_: any, args: {lat: number, long: number}) => {
+    detailedPositions: (_: any, args: { lat: number, long: number }) => {
       console.log('---getForPos', args.lat, args.long);
       const positions = db.collection("positions");
       positions.aggregate([{
@@ -24,7 +24,7 @@ export const resolvers = {
           as: "brands"
         }
       }])
-      return [{name: "test"}, {name: "xxx"}]
+      return [{ name: "test" }, { name: "xxx" }]
     },
     // placeByApiId: (_:any, args: any) => {
 
@@ -37,21 +37,24 @@ export const resolvers = {
         BrandId: brand.BrandId
       }, {
         $setOnInsert: brand
-      }, {upsert: true})
+      }, { upsert: true })
     },
-    // addPlace: (_: any, args: any) => {
-    //   const places = db.collection('places');
-    //   places.insertOne({
-    //     id: "",
-    //     lat: "",
-    //     long: "",
-    //     name: "",
-    //     address: "",
-    //     brand_id: ""
-    //   })
-    // },
-    // addFuelType: (_: any, args: any) => {},
-    // addPlaceFuelType: (_: any, args: any) => {},
-    // addPlaceFuelPrice: (_: any, args: any) => {},
+    addFuel: (_: any, fuel: Fuel) => {
+      const fuels = db.collection('fuels');
+      fuels.updateOne({
+        FuelId: fuel.FuelId
+      }, {
+        $setOnInsert: fuel
+      }, { upsert: true })
+    },
+    addSite: (_: any, site: Site) => {
+      const sites = db.collection('sites');
+      sites.updateOne({
+        SiteId: site.SiteId
+      }, {
+        $setOnInsert: site,
+      }, { upsert: true })
+    }
+    
   }
 }
