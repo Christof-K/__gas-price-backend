@@ -17,7 +17,7 @@ const server = new Server({
           graphiql: true,
         })(req)
       }
-      case "/test": {
+      case "/": {
         break;
       }
     }

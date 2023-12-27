@@ -1,8 +1,26 @@
 import { gql } from "https://deno.land/x/graphql_tag@0.0.1/mod.ts";
 
+
+
+export interface QueryResult {
+  name: string,
+  address: string,
+  lat: number,
+  long: number,
+  brand_name: string,
+  distance_km: number,
+  distance_by_road_km: number
+}
+
+export interface Brand {
+  BrandId: string,
+  Name: string
+}
+
+
 export const typeDefs = gql`
   type Query {
-    getForPos(lat: Float, long: Float): [QueryResult]
+    detailedPositions(lat: Float, long: Float): [QueryResult]
   }
 
   type QueryResult {
@@ -16,10 +34,9 @@ export const typeDefs = gql`
   }
 
   type Brand {
-    id: String,
-    name: String
+    BrandId: String,
+    Name: String
   }
-
 
   type Mutation {
     addBrand(brand_id: String): Brand,

@@ -1,5 +1,7 @@
+// deno-lint-ignore-file no-explicit-any
 import { MongoClient } from "https://deno.land/x/mongo@v0.32.0/mod.ts";
 import { load } from "https://deno.land/std@0.210.0/dotenv/mod.ts";
+import { Brand } from './typedefs.ts';
 
 
 await load({ export: true })
@@ -13,6 +15,15 @@ export const resolvers = {
   Query: {
     detailedPositions: (_: any, args: {lat: number, long: number}) => {
       console.log('---getForPos', args.lat, args.long);
+      const positions = db.collection("positions");
+      positions.aggregate([{
+        $lookup: {
+          from: "brands",
+          local_field: "brand_id",
+          foreignField: "id",
+          as: "brands"
+        }
+      }])
       return [{name: "test"}, {name: "xxx"}]
     },
     // placeByApiId: (_:any, args: any) => {
@@ -20,12 +31,13 @@ export const resolvers = {
     // },
   },
   Mutation: {
-    addBrand: (_: any, args: any) => {
+    addBrand: (_: any, brand: Brand) => {
       const brands = db.collection('brands');
-      brands.insertOne({
-        brand_id: "",
-        name: ""
-      })
+      brands.updateOne({
+        BrandId: brand.BrandId
+      }, {
+        $setOnInsert: brand
+      }, {upsert: true})
     },
     // addPlace: (_: any, args: any) => {
     //   const places = db.collection('places');
