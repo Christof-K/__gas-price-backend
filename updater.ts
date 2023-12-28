@@ -3,7 +3,6 @@ import { resolvers } from './resolvers.ts';
 import { Brand, Fuel, SitePrice } from './typedefs.ts';
 await load({ export: true })
 
-
 const baseUrl = "https://fppdirectapi-prod.fuelpricesqld.com.au";
 enum ResourceTypes {
   brands = "brands",
@@ -12,15 +11,12 @@ enum ResourceTypes {
   sitesPrices = "sites_prices"
 }
 
-
 const resources = {
   [ResourceTypes.brands]: "Subscriber/GetCountryBrands?countryId=21",
   [ResourceTypes.fuelTypes]: "Subscriber/GetCountryFuelTypes?countryId=21",
   [ResourceTypes.sites]: "Subscriber/GetFullSiteDetails?countryId=21&geoRegionLevel=3&geoRegionId=1",
   [ResourceTypes.sitesPrices]: "Price/GetSitesPrices?countryId=21&geoRegionLevel=3&geoRegionId=1"
 }
-
-
 
 Object.entries(resources).forEach(([resourceName, resource]) => {
   fetch(`${baseUrl}/${resource}`, {

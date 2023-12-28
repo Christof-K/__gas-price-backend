@@ -24,7 +24,7 @@ interface IDetailedPosition extends Site {
 
 export const resolvers = {
   Query: {
-    detailedPositions: async (_: any, args: { lat: number, lng: number }): Promise<{ fuels: Fuel[], sites: IDetailedPosition[]}> => {
+    detailedPositions: async (_: any, args: { lat: number, lng: number }): Promise<{ fuels: Fuel[], sites: IDetailedPosition[] }> => {
       const sites = db.collection("sites");
       const fuels = db.collection('fuels');
 
@@ -36,6 +36,9 @@ export const resolvers = {
             foreignField: "BrandId",
             as: "Brand"
           },
+        },
+        {
+          $unwind: "$Brand"
         },
         {
           $lookup: {
@@ -57,6 +60,26 @@ export const resolvers = {
             as: "Prices"
           },
         },
+        {
+          $addFields: {
+            distance: {
+              $sqrt: {
+                $sum: [
+                  { $pow: [{ $subtract: ["$Lat", args.lat] }, 2] },
+                  { $pow: [{ $subtract: ["$Lng", args.lng] }, 2] },
+                ],
+              },
+            },
+          },
+        },
+        // {
+        //   $match: {
+        //     "Prices.LatestPrice.TransactionDateUtc": {
+        //       $gte: new Date(new Date() - 7 * 24 * 60 * 60 * 1000),
+        //     },
+        //   },
+        // },
+        { $sort: { distance: 1 } },
         { $limit: 10 }
       ]).toArray() as IDetailedPosition[]
 
