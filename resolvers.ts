@@ -22,13 +22,21 @@ interface IDetailedPosition extends Site {
 
 }
 
+interface IArgs {
+  lat: number,
+  lng: number,
+  allowed_brands: Array<number>,
+  allowed_fuels: Array<number>
+}
+
+
 export const resolvers = {
   Query: {
-    detailedPositions: async (_: any, args: { lat: number, lng: number }): Promise<{ fuels: Fuel[], sites: IDetailedPosition[] }> => {
+    detailedPositions: async (_: any, args: IArgs): Promise<{ fuels: Fuel[], sites: IDetailedPosition[] }> => {
       const sites = db.collection("sites");
       const fuels = db.collection('fuels');
 
-      const result = await sites.aggregate([
+      const aggregateSettings = [
         {
           $lookup: {
             from: "brands",
@@ -51,9 +59,8 @@ export const resolvers = {
               },
               {
                 $group: {
-                  _id: "$FuelId", // Group by FuelId
-                  LatestPrice: { $first: "$$ROOT" } // Get the first (latest) document for each FuelId
-                  // Add other fields you want to retain using $first
+                  _id: "$FuelId",
+                  LatestPrice: { $first: "$$ROOT" }
                 }
               },
             ],
@@ -72,25 +79,34 @@ export const resolvers = {
             },
           },
         },
-        // {
-        //   $match: {
-        //     "Prices.LatestPrice.TransactionDateUtc": {
-        //       $gte: new Date(new Date() - 7 * 24 * 60 * 60 * 1000),
-        //     },
-        //   },
-        // },
         { $sort: { distance: 1 } },
         { $limit: 50 }
-      ]).toArray() as IDetailedPosition[]
+      ];
 
+      if (args.allowed_brands.length > 0) {
+        aggregateSettings.push({
+          // @ts-ignore
+          $match: {
+            "BrandId": { $in: args.allowed_brands }
+          }
+        },)
+      }
+
+      // if(args.allowed_fuels.length > 0) {
+
+      // }
+
+      const result = await sites.aggregate(aggregateSettings).toArray() as IDetailedPosition[]
+
+
+      console.log(args)
       return {
-        fuels: await fuels.find().toArray() as Fuel[],
+        fuels: await fuels.find(args.allowed_fuels.length > 0 ? {
+          "FuelId": { $in: args.allowed_fuels }
+        } : undefined).toArray() as Fuel[],
         sites: result
       };
     },
-    // placeByApiId: (_:any, args: any) => {
-
-    // },
   },
   Mutation: {
     addBrand: (_: any, brand: Brand) => {

@@ -32,11 +32,8 @@ const server = new Server({
           })
         }
 
-        const coords = await req.json();
-        const result = await resolvers.Query.detailedPositions(null, {
-          lat: coords.lat,
-          lng: coords.lng
-        })
+        const args = await req.json();
+        const result = await resolvers.Query.detailedPositions(null, args)
         return Response.json(result, {
           headers: headers
         });
