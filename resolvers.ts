@@ -80,7 +80,7 @@ export const resolvers = {
         //   },
         // },
         { $sort: { distance: 1 } },
-        { $limit: 10 }
+        { $limit: 50 }
       ]).toArray() as IDetailedPosition[]
 
       return {
